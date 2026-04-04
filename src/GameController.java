@@ -1,16 +1,21 @@
+// Name & ID: Eseosa Travis Eweka  - 101583426
+// Name & ID: Bank Aghedo          - 101534808
+// Name & ID: Zuheb Mohamud        - 101555019
+// Name & ID: Affan Telek          - 101565764
+// Name & ID: Kamran Omar          - 101564373
+
 import java.util.Scanner;
 
 public class GameController {
 
-    private final  Board board;
+    private final Board         board;
     private final PlayerManager players;
-    private final Scanner sc;
+    private final Scanner       sc;
 
-    // Constructor gets Scanner
     public GameController(Board board, PlayerManager players, Scanner sc) {
-        this.board = board;
+        this.board   = board;
         this.players = players;
-        this.sc = sc;
+        this.sc      = sc;
     }
 
     public void startGame() {
@@ -19,23 +24,22 @@ public class GameController {
 
             board.printBoard();
 
-            String name = players.getCurrentPlayerName();
-            char symbol = players.getCurrentPlayerSymbol();
-            int row = -1;
-            int col = -1;
+            String name   = players.getCurrentPlayerName();
+            char   symbol = players.getCurrentPlayerSymbol();
+            int    row    = -1;
+            int    col    = -1;
 
-
-            // AI TURN — call MinimaxAI, no keyboard input needed
             if (players.isAITurn()) {
 
-                int[] bestMove = MinimaxAI.getBestMove(board.getGrid(), symbol); // NOTE: this will work after adding the MinMax ai
+                // AI computes its move — no input needed from the user
+                int[] bestMove = MinimaxAI.getBestMove(board.getGrid(), symbol);
                 row = bestMove[0];
                 col = bestMove[1];
                 System.out.println("Computer plays at row " + row + ", col " + col + ".");
 
+            } else {
 
-
-                // HUMAN TURN — prompt and validate input
+                // Human turn — keep asking until a valid cell is entered
                 while (true) {
                     System.out.print(name + " (" + symbol + ") enter row and column: ");
 
@@ -52,29 +56,26 @@ public class GameController {
                         continue;
                     }
                     col = sc.nextInt();
-                    sc.nextLine(); // clear buffer after nextInt
+                    sc.nextLine();
 
                     if (board.isValidMove(row, col)) {
                         break;
-                    } else {
-                        System.out.println("Invalid move. Cell is occupied or out of range. Try again.");
                     }
+                    System.out.println("That cell is already taken or out of range. Try again.");
                 }
             }
 
-
-            // TODO: PLACE SYMBOL — same path for both human and AI
-
+            // Place the symbol — same path for both human and AI
             board.placeSymbol(row, col, symbol);
 
-            // WIN CHECK
+            // Check for a win after every move
             if (board.checkWin(symbol)) {
                 board.printBoard();
                 System.out.println(name + " (" + symbol + ") wins!");
                 break;
             }
 
-            // DRAW CHECK
+            // Check for a draw after every move
             if (board.isBoardFull()) {
                 board.printBoard();
                 System.out.println("It's a draw!");
