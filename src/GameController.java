@@ -16,47 +16,65 @@ public class GameController {
     public void startGame() {
 
         while (true) {
+
             board.printBoard();
 
             String name = players.getCurrentPlayerName();
             char symbol = players.getCurrentPlayerSymbol();
+            int row = -1;
+            int col = -1;
 
-            int row, col;
 
-            while (true) {
-                System.out.print(name + " (" + symbol + ") enter row and column: ");
+            // AI TURN — call MinimaxAI, no keyboard input needed
+            if (players.isAITurn()) {
 
-                if (!sc.hasNextInt()) {
-                    System.out.println("Invalid input. Enter numbers only.");
-                    sc.next();
-                    continue;
-                }
-                row = sc.nextInt();
+                int[] bestMove = MinimaxAI.getBestMove(board.getGrid(), symbol); // NOTE: this will work after adding the MinMax ai
+                row = bestMove[0];
+                col = bestMove[1];
+                System.out.println("Computer plays at row " + row + ", col " + col + ".");
 
-                if (!sc.hasNextInt()) {
-                    System.out.println("Invalid input. Enter numbers only.");
-                    sc.next();
-                    continue;
-                }
-                col = sc.nextInt();
 
-                sc.nextLine(); // clear buffer
 
-                if (board.isValidMove(row, col)) {
-                    break;
-                } else {
-                    System.out.println("Invalid move. Try again.");
+                // HUMAN TURN — prompt and validate input
+                while (true) {
+                    System.out.print(name + " (" + symbol + ") enter row and column: ");
+
+                    if (!sc.hasNextInt()) {
+                        System.out.println("Invalid input. Enter numbers only.");
+                        sc.next();
+                        continue;
+                    }
+                    row = sc.nextInt();
+
+                    if (!sc.hasNextInt()) {
+                        System.out.println("Invalid input. Enter numbers only.");
+                        sc.next();
+                        continue;
+                    }
+                    col = sc.nextInt();
+                    sc.nextLine(); // clear buffer after nextInt
+
+                    if (board.isValidMove(row, col)) {
+                        break;
+                    } else {
+                        System.out.println("Invalid move. Cell is occupied or out of range. Try again.");
+                    }
                 }
             }
 
+
+            // TODO: PLACE SYMBOL — same path for both human and AI
+
             board.placeSymbol(row, col, symbol);
 
+            // WIN CHECK
             if (board.checkWin(symbol)) {
                 board.printBoard();
                 System.out.println(name + " (" + symbol + ") wins!");
                 break;
             }
 
+            // DRAW CHECK
             if (board.isBoardFull()) {
                 board.printBoard();
                 System.out.println("It's a draw!");
